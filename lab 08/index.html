@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Yatzy — Full Game</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Load jQuery first -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>Yatzy — Single Player</h1>
+      <p class="lead">Roll up to 3 times, hold dice, then choose a category to score. Try to get the highest total!</p>
+    </header>
+
+    <main>
+      <section class="middle">
+        <div class="dice-panel">
+          <div class="dice-row" id="diceRow" aria-live="polite">
+            <!-- Dice will be inserted here by JavaScript -->
+          </div>
+        </div>
+
+        <div class="panel controls">
+          <div class="buttons">
+            <button id="rollBtn" class="btn primary">Roll</button>
+            <button id="resetBtn" class="btn secondary">End Turn (forfeit)</button>
+          </div>
+
+          <div class="status">
+            <div>Rolls used: <span id="rollCount">0</span>/20</div>
+            <div>Roll number: <span id="lastRoll">—</span></div>
+            <div id="message" class="message" aria-live="polite"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Wait for DOM to be fully loaded
+    $(document).ready(function(){
+      console.log("Document ready - initializing dice");
+
+      // Initialize roll counter
+      let rollCount = 0;
+      const maxRolls = 20;
+
+      // Update the display
+      updateRollDisplay();
+      
+      // Create one die initially showing 6 pips
+      $("#diceRow").html(createDie(6));
+      console.log("Dice created");
+
+      // When "Roll" button clicked
+      
+
+      // When "Roll" button clicked
+      $("#rollBtn").on("click", function(){
+        if (rollCount >= maxRolls) {
+          $("#message").text("Maximum rolls reached! Use 'End Turn' to reset.");
+          return;
+        }
+        console.log("Roll button clicked");
+        let $die = $(".die");
+
+        // Increment roll counter
+        rollCount++;
+        updateRollDisplay();
+        
+        // Starts the animation
+        $die.addClass("rolling");
+        console.log("Rolling animation started");
+
+        // Disable roll button during animation to prevent multiple clicks
+        $("#rollBtn").prop("0", true);
+
+        // Simulate rolling for 1 second
+        setTimeout(() => {
+          // Stops the animation
+          $die.removeClass("rolling");
+          // Generate a random number
+          let value = Math.floor(Math.random() * 6) + 1;
+          console.log("New dice value:", value);
+          
+          $("#lastRoll").text(value);
+          // Rebuild die with new value
+          $die.replaceWith(createDie(value));
+
+          // Re-enable roll button (if rolls left)
+          $("#rollBtn").prop("0", rollCounter >= maxRolls);
+        }, 1000);
+
+      });
+
+      // Reset button clears dice
+      $("#resetBtn").on("click", function(){
+        console.log("Reset button clicked");
+        rollCount = 0;
+        updateRollDisplay();
+        $("#diceRow").html(createDie(6));
+        $("#lastRoll").text("-");
+        $("#message"),text("");
+        $("#rollCount").text("-", false);
+      });
+
+      // Function to update roll count display
+      function updateRollDisplay() {
+        $("#rollCount").text(maxRolls - rollCount);
+        $("#message").text("");
+      }
+
+      // Function: creates one die with correct pips
+      function createDie(value){
+        console.log("Creating die with value:", value);
+        const $die = $("<div>").addClass("die").attr("data-value", value);
+        const layout = {
+          1: ["center"],
+          2: ["top-left", "bottom-right"],
+          3: ["top-left", "center", "bottom-right"],
+          4: ["top-left", "top-right", "bottom-left", "bottom-right"],
+          5: ["top-left", "top-right", "center", "bottom-left", "bottom-right"],
+          6: ["top-left", "top-right", "middle-left", "middle-right", "bottom-left", "bottom-right"],
+        };
+        
+        // Add pips to the die
+        if (layout[value]) {
+          layout[value].forEach(pos => {
+            $die.append($("<div>").addClass("pip " + pos));
+          });
+        }
+        
+        return $die;
+      }
+    });
+  </script>
+</body>
+</html>
